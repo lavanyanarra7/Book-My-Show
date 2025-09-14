@@ -49,24 +49,22 @@ pipeline {
             }
         }
 
-       stage('Install Dependencies') {
-    steps {
-        script { // Using a script block can sometimes improve readability for complex logic
-            dir('bookmyshow-app') { // Use the 'dir' step for explicit directory context
-                echo 'Checking for package.json...'
-                if (fileExists('package.json')) {
-                    echo 'Removing existing node_modules and package-lock.json...'
-                    sh 'rm -rf node_modules package-lock.json' // Remove old dependencies
-                    
-                    echo 'Installing fresh dependencies with npm...'
-                    sh 'npm install' // Install fresh dependencies
-                } else {
-                    error 'Error: package.json not found in bookmyshow-app!' // Use 'error' for a cleaner failure
-                }
+      stage('Install Dependencies') {
+            steps {
+                sh '''
+                cd bookmyshow-app
+                ls -la  # Verify package.json exists
+                if [ -f package.json ]; then
+                    rm -rf node_modules package-lock.json  # Remove old dependencies
+                    npm install  # Install fresh dependencies
+                else
+                    echo "Error: package.json not found in bookmyshow-app!"
+                    exit 1
+                fi
+                '''
             }
         }
-    }
-}
+
 
         stage('Docker Build & Push') {
             steps {
@@ -117,7 +115,7 @@ pipeline {
                 body: "Project: ${env.JOB_NAME}<br/>" +
                       "Build Number: ${env.BUILD_NUMBER}<br/>" +
                       "URL: ${env.BUILD_URL}<br/>",
-                to: 'kastrokiran@gmail.com'
+                to: 'narralavanya333@gmail.com'
         }
     }
 }
